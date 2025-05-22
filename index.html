@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Історії, що змінюють життя</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto&display=swap');
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #f0e4d7, #c2dfe3);
+    color: #333;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  header {
+    font-family: 'Pacifico', cursive;
+    font-size: 3rem;
+    margin: 2rem 0 1rem 0;
+    color: #4a6fa5;
+    text-shadow: 1px 1px 3px #a8b7cc;
+    user-select: none;
+  }
+  .quote {
+    font-style: italic;
+    margin-bottom: 2rem;
+    font-size: 1.2rem;
+    max-width: 600px;
+    text-align: center;
+    color: #555;
+  }
+  .stories {
+    max-width: 600px;
+    width: 90vw;
+  }
+  .story {
+    background: white;
+    margin-bottom: 1.5rem;
+    padding: 1.2rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(74, 111, 165, 0.15);
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.8s forwards;
+    position: relative;
+  }
+  .story:nth-child(1) {animation-delay: 0.1s;}
+  .story:nth-child(2) {animation-delay: 0.3s;}
+  .story:nth-child(3) {animation-delay: 0.5s;}
+  .story .author {
+    font-weight: 700;
+    color: #4a6fa5;
+    margin-bottom: 0.5rem;
+  }
+  .story .text {
+    font-size: 1rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+  .story img, .story video {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 0.7rem;
+    box-shadow: 0 2px 8px rgba(74, 111, 165, 0.3);
+  }
+  .story video {
+    max-height: 300px;
+  }
+  .story .actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+  .story button {
+    background: transparent;
+    border: none;
+    color: #4a6fa5;
+    font-weight: 700;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .story button:hover {
+    text-decoration: underline;
+  }
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  form {
+    background: #4a6fa5;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    width: 90vw;
+    max-width: 600px;
+    box-shadow: 0 5px 20px rgba(74, 111, 165, 0.4);
+    margin-bottom: 3rem;
+  }
+  form h2 {
+    color: #fff;
+    margin-bottom: 1rem;
+  }
+  form textarea {
+    width: 100%;
+    height: 80px;
+    border-radius: 8px;
+    border: none;
+    padding: 0.6rem;
+    font-size: 1rem;
+    resize: none;
+  }
+  form input[type="text"], form input[type="file"] {
+    width: 100%;
+    padding: 0.6rem;
+    border-radius: 8px;
+    border: none;
+    margin-top: 0.7rem;
+    font-size: 1rem;
+  }
+  form button {
+    margin-top: 1rem;
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    background: #f0e4d7;
+    font-weight: 700;
+    color: #4a6fa5;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  form button:hover {
+    background-color: #dcd2b5;
+  }
+  #previewContainer {
+    margin-top: 1rem;
+    max-width: 100%;
+  }
+  #previewContainer img,
+  #previewContainer video {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(74, 111, 165, 0.3);
+  }
+  #previewContainer video {
+    max-height: 300px;
+  }
+  footer {
+    margin: 2rem 0;
+    font-size: 0.9rem;
+    color: #777;
+  }
+  /* Модальне вікно */
+  #editModal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  #editModal .modal-content {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90vw;
+    box-shadow: 0 5px 20px rgba(74, 111, 165, 0.5);
+    position: relative;
+  }
+  #editModal textarea {
+    width: 100%;
+    height: 100px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    font-size: 1rem;
+    resize: vertical;
+  }
+  #editModal input[type="text"] {
+    width: 100%;
+    margin-top: 0.7rem;
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+  #editModal button {
+    margin-top: 1rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    border: none;
+    background: #4a6fa5;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #editModal .close-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #888;
+  }
+  #editModal .close-btn:hover {
+    color: #4a6fa5;
+  }
+</style>
+</head>
+<body>
+    
+
+<header>Історії, що змінюють життя</header>
+<div class="quote" id="quote"></div>
+
+<!-- Форма з прев’ю -->
+<form id="storyForm" novalidate>
+  <h2>Поділись своєю історією</h2>
+  <textarea id="storyText" placeholder="Ваша історія..." required></textarea>
+  <input type="text" id="authorName" placeholder="Ваше ім'я (або залиште порожнім для анонімності)" />
+  <input type="file" id="photoInput" accept="image/*,video/*" />
+  <div id="previewContainer"></div>
+  <button type="submit">Надіслати</button>
+</form>
+
+<!-- Історії під формою -->
+<div class="stories" id="stories">
+  <div class="story" data-id="1">
+    <div class="author">— Тестове</div>
+    <div class="text">Моя історія почалася в найважчий період життя.
+Коли здавалось, що все навколо руйнується і немає сил йти далі, я зустрів людину, яка підтримала мене і повірила в мене більше, ніж я сам. Ця підтримка дала мені новий подих і змусила не здаватися. З того моменту я зрозумів — у кожного з нас є сила 
+змінювати своє життя, навіть коли здається, що світ навколо темний. Тепер я хочу поділитися своєю історією, щоб і ти, хто це читає, знав — ти не сам, і все буде добре.</div>
+    <div class="actions">
+    </div>
+  </div>
+</div>
+
+<!-- Модальне вікно редагування -->
+<div id="editModal">
+  <div class="modal-content">
+    <button class="close-btn" id="closeEditModal">&times;</button>
+    <h3>Редагувати історію</h3>
+    <textarea id="editStoryText"></textarea>
+    <input type="text" id="editAuthorName" placeholder="Ім'я автора" />
+    <button id="saveEditBtn">Зберегти</button>
+  </div>
+</div>
+
+<footer>© 2025 Історії, що змінюють життя</footer>
+
+<script>
+  // Цитати
+  const quotes = [
+    "Життя — це те, що трапляється, поки ти будуєш плани.",
+    "Віра в себе — перший крок до успіху.",
+    "Ніколи не пізно почати змінювати своє життя.",
+    "Кожна історія має силу надихати.",
+    "Справжня сила — у здатності прощати."
+  ];
+  const quoteEl = document.getElementById('quote');
+  function showRandomQuote() {
+    const q = quotes[Math.floor(Math.random() * quotes.length)];
+    quoteEl.textContent = `"${q}"`;
+  }
+  showRandomQuote();
+
+  const storiesEl = document.getElementById('stories');
+  const storyForm = document.getElementById('storyForm');
+  const storyText = document.getElementById('storyText');
+  const authorName = document.getElementById('authorName');
+  const photoInput = document.getElementById('photoInput');
+  const previewContainer = document.getElementById('previewContainer');
+
+  // Показати прев'ю фото/відео
+  photoInput.addEventListener('change', function() {
+    const file = this.files[0];
+    previewContainer.innerHTML = '';
+    if (!file) return;
+
+    // Перевірка типу файлу - тільки фото або відео
+    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+      alert('Можна вибирати лише фото або відео.');
+      this.value = '';
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+    let mediaElem;
+
+    if (file.type.startsWith('image/')) {
+      mediaElem = document.createElement('img');
+      mediaElem.src = url;
+      mediaElem.alt = 'Прев\'ю фото';
+    } else if (file.type.startsWith('video/')) {
+      mediaElem = document.createElement('video');
+      mediaElem.src = url;
+      mediaElem.controls = true;
+    }
+    previewContainer.appendChild(mediaElem);
+  });
+
+  // Додати історію в список
+  storyForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const textVal = storyText.value.trim();
+    if (!textVal) {
+      alert('Будь ласка, напишіть вашу історію.');
+      return;
+    }
+
+    const authorVal = authorName.value.trim() || 'Анонім';
+
+    // Створити новий блок історії
+    const newStory = document.createElement('div');
+    newStory.className = 'story';
+    newStory.style.animation = 'fadeInUp 0.8s forwards';
+    newStory.style.opacity = '0';
+    newStory.style.transform = 'translateY(30px)';
+
+    const authorDiv = document.createElement('div');
+    authorDiv.className = 'author';
+    authorDiv.textContent = `— ${authorVal}`;
+
+    const textDiv = document.createElement('div');
+    textDiv.className = 'text';
+    textDiv.textContent = textVal;
+
+    newStory.appendChild(authorDiv);
+    newStory.appendChild(textDiv);
+
+    // Якщо є файл, додати фото/відео
+    const file = photoInput.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      let mediaElem;
+      if (file.type.startsWith('image/')) {
+        mediaElem = document.createElement('img');
+        mediaElem.src = url;
+        mediaElem.alt = 'Фото з історії';
+      } else if (file.type.startsWith('video/')) {
+        mediaElem = document.createElement('video');
+        mediaElem.src = url;
+        mediaElem.controls = true;
+      }
+      newStory.appendChild(mediaElem);
+    }
+
+    // Додати кнопки редагування і видалення
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'actions';
+
+    const editBtn = document.createElement('button');
+    editBtn.textContent = 'Редагувати';
+    editBtn.type = 'button';
+    actionsDiv.appendChild(editBtn);
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Видалити';
+    deleteBtn.type = 'button';
+    actionsDiv.appendChild(deleteBtn);
+
+    newStory.appendChild(actionsDiv);
+    storiesEl.prepend(newStory);
+
+    // Анімація появи
+    requestAnimationFrame(() => {
+      newStory.style.opacity = '1';
+      newStory.style.transform = 'translateY(0)';
+    });
+
+    // Очистити форму
+    storyText.value = '';
+    authorName.value = '';
+    photoInput.value = '';
+    previewContainer.innerHTML = '';
+
+    // Прив'язати функції редагування і видалення
+    editBtn.addEventListener('click', () => openEditModal(newStory));
+    deleteBtn.addEventListener('click', () => {
+      if (confirm('Ви впевнені, що хочете видалити цю історію?')) {
+        newStory.remove();
+      }
+    });
+  });
+
+  // Редагування
+  const editModal = document.getElementById('editModal');
+  const editStoryText = document.getElementById('editStoryText');
+  const editAuthorName = document.getElementById('editAuthorName');
+  const saveEditBtn = document.getElementById('saveEditBtn');
+  const closeEditModalBtn = document.getElementById('closeEditModal');
+
+  let currentEditingStory = null;
+
+  function openEditModal(storyDiv) {
+    currentEditingStory = storyDiv;
+    editStoryText.value = storyDiv.querySelector('.text').textContent;
+    editAuthorName.value = storyDiv.querySelector('.author').textContent.replace(/^—\s*/, '');
+    editModal.style.display = 'flex';
+  }
+
+  closeEditModalBtn.addEventListener('click', () => {
+    editModal.style.display = 'none';
+  });
+
+  saveEditBtn.addEventListener('click', () => {
+    const newText = editStoryText.value.trim();
+    if (!newText) {
+      alert('Історія не може бути порожньою.');
+      return;
+    }
+    const newAuthor = editAuthorName.value.trim() || 'Анонім';
+
+    currentEditingStory.querySelector('.text').textContent = newText;
+    currentEditingStory.querySelector('.author').textContent = `— ${newAuthor}`;
+
+    editModal.style.display = 'none';
+  });
+
+  // Закрити модал при кліку поза контентом
+  editModal.addEventListener('click', (e) => {
+    if (e.target === editModal) {
+      editModal.style.display = 'none';
+    }
+  });
+</script>
+</body>
+</html>
