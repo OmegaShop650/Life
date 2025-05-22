@@ -227,16 +227,7 @@
 </form>
 
 <!-- Історії під формою -->
-<div class="stories" id="stories">
-  <div class="story" data-id="1">
-    <div class="author">— Тестове</div>
-    <div class="text">Моя історія почалася в найважчий період життя.
-Коли здавалось, що все навколо руйнується і немає сил йти далі, я зустрів людину, яка підтримала мене і повірила в мене більше, ніж я сам. Ця підтримка дала мені новий подих і змусила не здаватися. З того моменту я зрозумів — у кожного з нас є сила 
-змінювати своє життя, навіть коли здається, що світ навколо темний. Тепер я хочу поділитися своєю історією, щоб і ти, хто це читає, знав — ти не сам, і все буде добре.</div>
-    <div class="actions">
-    </div>
-  </div>
-</div>
+<div class="stories" id="stories"></div>
 
 <!-- Модальне вікно редагування -->
 <div id="editModal">
@@ -249,184 +240,214 @@
   </div>
 </div>
 
-<footer>© 2025 Історії, що змінюють життя</footer>
+<footer>
+  © 2025 Omega Shop
+</footer>
 
 <script>
-  // Цитати
+  // Цитати для рандомного відображення
   const quotes = [
-    "Життя — це те, що трапляється, поки ти будуєш плани.",
-    "Віра в себе — перший крок до успіху.",
-    "Ніколи не пізно почати змінювати своє життя.",
-    "Кожна історія має силу надихати.",
-    "Справжня сила — у здатності прощати."
+    '“У житті важливі не роки, а миті.”',
+    '“Історія кожного починається зі сміливого кроку.”',
+    '“Кожна людина має свою унікальну історію.”',
+    '“Ділися своїми мріями та переживаннями.”',
+    '“Нехай твої слова надихають інших.”'
   ];
   const quoteEl = document.getElementById('quote');
-  function showRandomQuote() {
-    const q = quotes[Math.floor(Math.random() * quotes.length)];
-    quoteEl.textContent = `"${q}"`;
-  }
-  showRandomQuote();
+  quoteEl.textContent = quotes[Math.floor(Math.random() * quotes.length)];
 
-  const storiesEl = document.getElementById('stories');
   const storyForm = document.getElementById('storyForm');
   const storyText = document.getElementById('storyText');
   const authorName = document.getElementById('authorName');
   const photoInput = document.getElementById('photoInput');
   const previewContainer = document.getElementById('previewContainer');
+  const storiesContainer = document.getElementById('stories');
 
-  // Показати прев'ю фото/відео
-  photoInput.addEventListener('change', function() {
-    const file = this.files[0];
-    previewContainer.innerHTML = '';
-    if (!file) return;
+  let stories = [];
 
-    // Перевірка типу файлу - тільки фото або відео
-    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-      alert('Можна вибирати лише фото або відео.');
-      this.value = '';
-      return;
+  // Для редагування
+  const editModal = document.getElementById('editModal');
+  const closeEditModalBtn = document.getElementById('closeEditModal');
+  const editStoryText = document.getElementById('editStoryText');
+  const editAuthorName = document.getElementById('editAuthorName');
+  const saveEditBtn = document.getElementById('saveEditBtn');
+  let editingIndex = null;
+
+  // Завантажуємо з localStorage при старті
+  function loadStories() {
+    const data = localStorage.getItem('stories');
+    if (data) {
+      stories = JSON.parse(data);
+      stories.forEach((story, i) => {
+        addStoryToDOM(story, i);
+      });
     }
+  }
 
-    const url = URL.createObjectURL(file);
-    let mediaElem;
+  // Зберігаємо stories у localStorage
+  function saveStories() {
+    localStorage.setItem('stories', JSON.stringify(stories));
+  }
 
-    if (file.type.startsWith('image/')) {
-      mediaElem = document.createElement('img');
-      mediaElem.src = url;
-      mediaElem.alt = 'Прев\'ю фото';
-    } else if (file.type.startsWith('video/')) {
-      mediaElem = document.createElement('video');
-      mediaElem.src = url;
-      mediaElem.controls = true;
-    }
-    previewContainer.appendChild(mediaElem);
-  });
-
-  // Додати історію в список
-  storyForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const textVal = storyText.value.trim();
-    if (!textVal) {
-      alert('Будь ласка, напишіть вашу історію.');
-      return;
-    }
-
-    const authorVal = authorName.value.trim() || 'Анонім';
-
-    // Створити новий блок історії
-    const newStory = document.createElement('div');
-    newStory.className = 'story';
-    newStory.style.animation = 'fadeInUp 0.8s forwards';
-    newStory.style.opacity = '0';
-    newStory.style.transform = 'translateY(30px)';
-
-    const authorDiv = document.createElement('div');
-    authorDiv.className = 'author';
-    authorDiv.textContent = `— ${authorVal}`;
-
-    const textDiv = document.createElement('div');
-    textDiv.className = 'text';
-    textDiv.textContent = textVal;
-
-    newStory.appendChild(authorDiv);
-    newStory.appendChild(textDiv);
-
-    // Якщо є файл, додати фото/відео
-    const file = photoInput.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      let mediaElem;
-      if (file.type.startsWith('image/')) {
-        mediaElem = document.createElement('img');
-        mediaElem.src = url;
-        mediaElem.alt = 'Фото з історії';
-      } else if (file.type.startsWith('video/')) {
-        mediaElem = document.createElement('video');
-        mediaElem.src = url;
-        mediaElem.controls = true;
-      }
-      newStory.appendChild(mediaElem);
-    }
-
-    // Додати кнопки редагування і видалення
-    const actionsDiv = document.createElement('div');
-    actionsDiv.className = 'actions';
-
-    const editBtn = document.createElement('button');
-    editBtn.textContent = 'Редагувати';
-    editBtn.type = 'button';
-    actionsDiv.appendChild(editBtn);
-
-    const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'Видалити';
-    deleteBtn.type = 'button';
-    actionsDiv.appendChild(deleteBtn);
-
-    newStory.appendChild(actionsDiv);
-    storiesEl.prepend(newStory);
-
-    // Анімація появи
-    requestAnimationFrame(() => {
-      newStory.style.opacity = '1';
-      newStory.style.transform = 'translateY(0)';
-    });
-
-    // Очистити форму
+  // Очищаємо форму
+  function clearForm() {
     storyText.value = '';
     authorName.value = '';
     photoInput.value = '';
     previewContainer.innerHTML = '';
+  }
 
-    // Прив'язати функції редагування і видалення
-    editBtn.addEventListener('click', () => openEditModal(newStory));
-    deleteBtn.addEventListener('click', () => {
-      if (confirm('Ви впевнені, що хочете видалити цю історію?')) {
-        newStory.remove();
+  // Створюємо елемент історії в DOM
+  function addStoryToDOM(story, index) {
+    const div = document.createElement('div');
+    div.className = 'story';
+
+    const authorDisplay = story.author ? story.author : 'Анонім';
+
+    div.innerHTML = `
+      <div class="author">${authorDisplay}</div>
+      <div class="text">${escapeHtml(story.text)}</div>
+      ${story.media ? getMediaHTML(story.media) : ''}
+      <div class="actions">
+        <button class="edit-btn">Редагувати</button>
+        <button class="delete-btn">Видалити</button>
+      </div>
+    `;
+
+    // Події редагування
+    div.querySelector('.edit-btn').onclick = () => openEditModal(index);
+    // Події видалення
+    div.querySelector('.delete-btn').onclick = () => {
+      if(confirm('Ви дійсно хочете видалити цю історію?')) {
+        stories.splice(index, 1);
+        saveStories();
+        renderStories();
       }
-    });
-  });
+    };
 
-  // Редагування
-  const editModal = document.getElementById('editModal');
-  const editStoryText = document.getElementById('editStoryText');
-  const editAuthorName = document.getElementById('editAuthorName');
-  const saveEditBtn = document.getElementById('saveEditBtn');
-  const closeEditModalBtn = document.getElementById('closeEditModal');
+    storiesContainer.appendChild(div);
+  }
 
-  let currentEditingStory = null;
+  // Безпечний показ тексту (щоб не було HTML в тексті)
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML.replace(/\n/g, '<br>');
+  }
 
-  function openEditModal(storyDiv) {
-    currentEditingStory = storyDiv;
-    editStoryText.value = storyDiv.querySelector('.text').textContent;
-    editAuthorName.value = storyDiv.querySelector('.author').textContent.replace(/^—\s*/, '');
+  // Визначаємо, як відображати медіа (фото чи відео)
+  function getMediaHTML(media) {
+    if (!media) return '';
+    if (media.type.startsWith('image/')) {
+      return `<img src="${media.data}" alt="Фото історії" loading="lazy" />`;
+    } else if (media.type.startsWith('video/')) {
+      return `<video controls src="${media.data}" preload="metadata"></video>`;
+    }
+    return '';
+  }
+
+  // Оновлюємо весь список історій на сторінці
+  function renderStories() {
+    storiesContainer.innerHTML = '';
+    stories.forEach((story, i) => addStoryToDOM(story, i));
+  }
+
+  // Відкриваємо модальне вікно редагування
+  function openEditModal(index) {
+    editingIndex = index;
+    editStoryText.value = stories[index].text;
+    editAuthorName.value = stories[index].author || '';
     editModal.style.display = 'flex';
   }
 
-  closeEditModalBtn.addEventListener('click', () => {
+  // Закриваємо модальне вікно
+  closeEditModalBtn.onclick = () => {
     editModal.style.display = 'none';
-  });
+    editingIndex = null;
+  };
 
-  saveEditBtn.addEventListener('click', () => {
+  // Зберігаємо редагування
+  saveEditBtn.onclick = () => {
+    if (editingIndex === null) return;
     const newText = editStoryText.value.trim();
-    if (!newText) {
-      alert('Історія не може бути порожньою.');
+    const newAuthor = editAuthorName.value.trim();
+    if (newText === '') {
+      alert('Текст історії не може бути порожнім!');
       return;
     }
-    const newAuthor = editAuthorName.value.trim() || 'Анонім';
-
-    currentEditingStory.querySelector('.text').textContent = newText;
-    currentEditingStory.querySelector('.author').textContent = `— ${newAuthor}`;
-
+    stories[editingIndex].text = newText;
+    stories[editingIndex].author = newAuthor;
+    saveStories();
+    renderStories();
     editModal.style.display = 'none';
-  });
+    editingIndex = null;
+  };
 
-  // Закрити модал при кліку поза контентом
-  editModal.addEventListener('click', (e) => {
-    if (e.target === editModal) {
-      editModal.style.display = 'none';
+  // Відображаємо прев’ю при виборі файлу
+  photoInput.onchange = () => {
+    previewContainer.innerHTML = '';
+    const file = photoInput.files[0];
+    if (!file) return;
+
+    const fileType = file.type;
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+      if (fileType.startsWith('image/')) {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        previewContainer.appendChild(img);
+      } else if (fileType.startsWith('video/')) {
+        const video = document.createElement('video');
+        video.controls = true;
+        video.src = e.target.result;
+        previewContainer.appendChild(video);
+      } else {
+        previewContainer.textContent = 'Непідтримуваний формат файлу.';
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Обробка відправки форми
+  storyForm.onsubmit = e => {
+    e.preventDefault();
+    const text = storyText.value.trim();
+    if (!text) {
+      alert('Будь ласка, напишіть свою історію.');
+      return;
     }
-  });
+
+    let mediaData = null;
+
+    const file = photoInput.files[0];
+    if (file) {
+      // Прочитаємо файл у base64
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        mediaData = {
+          type: file.type,
+          data: ev.target.result
+        };
+        addNewStory(text, authorName.value.trim(), mediaData);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      addNewStory(text, authorName.value.trim(), null);
+    }
+  };
+
+  // Додаємо нову історію у масив і оновлюємо сторінку
+  function addNewStory(text, author, media) {
+    stories.push({text, author, media});
+    saveStories();
+    renderStories();
+    clearForm();
+  }
+
+  // Стартова ініціалізація
+  loadStories();
 </script>
+
 </body>
 </html>
