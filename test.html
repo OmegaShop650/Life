@@ -1,0 +1,454 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Історії, що змінюють життя</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto&display=swap');
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #f0e4d7, #c2dfe3);
+    color: #333;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  header {
+    font-family: 'Pacifico', cursive;
+    font-size: 3rem;
+    margin: 2rem 0 1rem 0;
+    color: #4a6fa5;
+    text-shadow: 1px 1px 3px #a8b7cc;
+    user-select: none;
+  }
+  .quote {
+    font-style: italic;
+    margin-bottom: 2rem;
+    font-size: 1.2rem;
+    max-width: 600px;
+    text-align: center;
+    color: #555;
+  }
+  .stories {
+    max-width: 600px;
+    width: 90vw;
+  }
+  .story {
+    background: white;
+    margin-bottom: 1.5rem;
+    padding: 1.2rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(74, 111, 165, 0.15);
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.8s forwards;
+    position: relative;
+  }
+  .story:nth-child(1) {animation-delay: 0.1s;}
+  .story:nth-child(2) {animation-delay: 0.3s;}
+  .story:nth-child(3) {animation-delay: 0.5s;}
+  .story .author {
+    font-weight: 700;
+    color: #4a6fa5;
+    margin-bottom: 0.5rem;
+  }
+  .story .text {
+    font-size: 1rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+  .story img, .story video {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 0.7rem;
+    box-shadow: 0 2px 8px rgba(74, 111, 165, 0.3);
+  }
+  .story video {
+    max-height: 300px;
+  }
+  .story .actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+  .story button {
+    background: transparent;
+    border: none;
+    color: #4a6fa5;
+    font-weight: 700;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .story button:hover {
+    text-decoration: underline;
+  }
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  form {
+    background: #4a6fa5;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    width: 90vw;
+    max-width: 600px;
+    box-shadow: 0 5px 20px rgba(74, 111, 165, 0.4);
+    margin-bottom: 3rem;
+  }
+  form h2 {
+    color: #fff;
+    margin-bottom: 1rem;
+  }
+  form textarea {
+    width: 100%;
+    height: 80px;
+    border-radius: 8px;
+    border: none;
+    padding: 0.6rem;
+    font-size: 1rem;
+    resize: none;
+  }
+  form input[type="text"], form input[type="file"] {
+    width: 100%;
+    padding: 0.6rem;
+    border-radius: 8px;
+    border: none;
+    margin-top: 0.7rem;
+    font-size: 1rem;
+  }
+  form button {
+    margin-top: 1rem;
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    background: #f0e4d7;
+    font-weight: 700;
+    color: #4a6fa5;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  form button:hover {
+    background-color: #dcd2b5;
+  }
+  #previewContainer {
+    margin-top: 1rem;
+    max-width: 100%;
+  }
+  #previewContainer img,
+  #previewContainer video {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(74, 111, 165, 0.3);
+  }
+  #previewContainer video {
+    max-height: 300px;
+  }
+  footer {
+    margin: 2rem 0;
+    font-size: 0.9rem;
+    color: #777;
+  }
+  /* Модальне вікно */
+  #editModal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  #editModal .modal-content {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90vw;
+    box-shadow: 0 5px 20px rgba(74, 111, 165, 0.5);
+    position: relative;
+  }
+  #editModal textarea {
+    width: 100%;
+    height: 100px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    font-size: 1rem;
+    resize: vertical;
+  }
+  #editModal input[type="text"] {
+    width: 100%;
+    margin-top: 0.7rem;
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+  #editModal button {
+    margin-top: 1rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    border: none;
+    background: #4a6fa5;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #editModal .close-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #888;
+  }
+  #editModal .close-btn:hover {
+    color: #4a6fa5;
+  }
+</style>
+</head>
+<body>
+    
+
+<header>Історії, що змінюють життя</header>
+<div class="quote" id="quote"></div>
+
+<!-- Форма з прев’ю -->
+<form id="storyForm" novalidate>
+  <h2>Поділись своєю історією</h2>
+  <textarea id="storyText" placeholder="Ваша історія..." required></textarea>
+  <input type="text" id="authorName" placeholder="Ваше ім'я (або залиште порожнім для анонімності)" />
+  <input type="file" id="photoInput" accept="image/*,video/*" />
+  <div id="previewContainer"></div>
+  <button type="submit">Надіслати</button>
+</form>
+
+<!-- Історії під формою -->
+<div class="stories" id="stories"></div>
+
+<!-- Модальне вікно редагування -->
+<div id="editModal">
+  <div class="modal-content">
+    <button class="close-btn" id="closeEditModal">&times;</button>
+    <h3>Редагувати історію</h3>
+    <textarea id="editStoryText"></textarea>
+    <input type="text" id="editAuthorName" placeholder="Ім'я автора" />
+    <button id="saveEditBtn">Зберегти</button>
+  </div>
+</div>
+
+<footer>
+  © 2025 Omega Shop
+</footer>
+
+<script>
+  // Цитати для рандомного відображення
+  const quotes = [
+    '“У житті важливі не роки, а миті.”',
+    '“Історія кожного починається зі сміливого кроку.”',
+    '“Кожна людина має свою унікальну історію.”',
+    '“Ділися своїми мріями та переживаннями.”',
+    '“Нехай твої слова надихають інших.”'
+  ];
+  const quoteEl = document.getElementById('quote');
+  quoteEl.textContent = quotes[Math.floor(Math.random() * quotes.length)];
+
+  const storyForm = document.getElementById('storyForm');
+  const storyText = document.getElementById('storyText');
+  const authorName = document.getElementById('authorName');
+  const photoInput = document.getElementById('photoInput');
+  const previewContainer = document.getElementById('previewContainer');
+  const storiesContainer = document.getElementById('stories');
+
+  let stories = [];
+
+  // Для редагування
+  const editModal = document.getElementById('editModal');
+  const closeEditModalBtn = document.getElementById('closeEditModal');
+  const editStoryText = document.getElementById('editStoryText');
+  const editAuthorName = document.getElementById('editAuthorName');
+  const saveEditBtn = document.getElementById('saveEditBtn');
+  let editingIndex = null;
+
+  // Завантажуємо з localStorage при старті
+  function loadStories() {
+    const data = localStorage.getItem('stories');
+    if (data) {
+      stories = JSON.parse(data);
+      stories.forEach((story, i) => {
+        addStoryToDOM(story, i);
+      });
+    }
+  }
+
+  // Зберігаємо stories у localStorage
+  function saveStories() {
+    localStorage.setItem('stories', JSON.stringify(stories));
+  }
+
+  // Очищаємо форму
+  function clearForm() {
+    storyText.value = '';
+    authorName.value = '';
+    photoInput.value = '';
+    previewContainer.innerHTML = '';
+  }
+
+  // Створюємо елемент історії в DOM
+  function addStoryToDOM(story, index) {
+    const div = document.createElement('div');
+    div.className = 'story';
+
+    const authorDisplay = story.author ? story.author : 'Анонім';
+
+    div.innerHTML = `
+      <div class="author">${authorDisplay}</div>
+      <div class="text">${escapeHtml(story.text)}</div>
+      ${story.media ? getMediaHTML(story.media) : ''}
+      <div class="actions">
+        <button class="edit-btn">Редагувати</button>
+        <button class="delete-btn">Видалити</button>
+      </div>
+    `;
+
+    // Події редагування
+    div.querySelector('.edit-btn').onclick = () => openEditModal(index);
+    // Події видалення
+    div.querySelector('.delete-btn').onclick = () => {
+      if(confirm('Ви дійсно хочете видалити цю історію?')) {
+        stories.splice(index, 1);
+        saveStories();
+        renderStories();
+      }
+    };
+
+    storiesContainer.appendChild(div);
+  }
+
+  // Безпечний показ тексту (щоб не було HTML в тексті)
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML.replace(/\n/g, '<br>');
+  }
+
+  // Визначаємо, як відображати медіа (фото чи відео)
+  function getMediaHTML(media) {
+    if (!media) return '';
+    if (media.type.startsWith('image/')) {
+      return `<img src="${media.data}" alt="Фото історії" loading="lazy" />`;
+    } else if (media.type.startsWith('video/')) {
+      return `<video controls src="${media.data}" preload="metadata"></video>`;
+    }
+    return '';
+  }
+
+  // Оновлюємо весь список історій на сторінці
+  function renderStories() {
+    storiesContainer.innerHTML = '';
+    stories.forEach((story, i) => addStoryToDOM(story, i));
+  }
+
+  // Відкриваємо модальне вікно редагування
+  function openEditModal(index) {
+    editingIndex = index;
+    editStoryText.value = stories[index].text;
+    editAuthorName.value = stories[index].author || '';
+    editModal.style.display = 'flex';
+  }
+
+  // Закриваємо модальне вікно
+  closeEditModalBtn.onclick = () => {
+    editModal.style.display = 'none';
+    editingIndex = null;
+  };
+
+  // Зберігаємо редагування
+  saveEditBtn.onclick = () => {
+    if (editingIndex === null) return;
+    const newText = editStoryText.value.trim();
+    const newAuthor = editAuthorName.value.trim();
+    if (newText === '') {
+      alert('Текст історії не може бути порожнім!');
+      return;
+    }
+    stories[editingIndex].text = newText;
+    stories[editingIndex].author = newAuthor;
+    saveStories();
+    renderStories();
+    editModal.style.display = 'none';
+    editingIndex = null;
+  };
+
+  // Відображаємо прев’ю при виборі файлу
+  photoInput.onchange = () => {
+    previewContainer.innerHTML = '';
+    const file = photoInput.files[0];
+    if (!file) return;
+
+    const fileType = file.type;
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+      if (fileType.startsWith('image/')) {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        previewContainer.appendChild(img);
+      } else if (fileType.startsWith('video/')) {
+        const video = document.createElement('video');
+        video.controls = true;
+        video.src = e.target.result;
+        previewContainer.appendChild(video);
+      } else {
+        previewContainer.textContent = 'Непідтримуваний формат файлу.';
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Обробка відправки форми
+  storyForm.onsubmit = e => {
+    e.preventDefault();
+    const text = storyText.value.trim();
+    if (!text) {
+      alert('Будь ласка, напишіть свою історію.');
+      return;
+    }
+
+    let mediaData = null;
+
+    const file = photoInput.files[0];
+    if (file) {
+      // Прочитаємо файл у base64
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        mediaData = {
+          type: file.type,
+          data: ev.target.result
+        };
+        addNewStory(text, authorName.value.trim(), mediaData);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      addNewStory(text, authorName.value.trim(), null);
+    }
+  };
+
+  // Додаємо нову історію у масив і оновлюємо сторінку
+  function addNewStory(text, author, media) {
+    stories.push({text, author, media});
+    saveStories();
+    renderStories();
+    clearForm();
+  }
+
+  // Стартова ініціалізація
+  loadStories();
+</script>
+
+</body>
+</html>
