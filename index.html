@@ -58,15 +58,6 @@
     line-height: 1.5;
     white-space: pre-wrap;
   }
-  .story img, .story video {
-    max-width: 100%;
-    border-radius: 8px;
-    margin-top: 0.7rem;
-    box-shadow: 0 2px 8px rgba(74, 111, 165, 0.3);
-  }
-  .story video {
-    max-height: 300px;
-  }
   .story .actions {
     position: absolute;
     top: 10px;
@@ -103,22 +94,15 @@
     color: #fff;
     margin-bottom: 1rem;
   }
-  form textarea {
-    width: 100%;
-    height: 80px;
-    border-radius: 8px;
-    border: none;
-    padding: 0.6rem;
-    font-size: 1rem;
-    resize: none;
-  }
-  form input[type="text"], form input[type="file"] {
+  form textarea,
+  form input[type="text"] {
     width: 100%;
     padding: 0.6rem;
     border-radius: 8px;
     border: none;
     margin-top: 0.7rem;
     font-size: 1rem;
+    resize: none;
   }
   form button {
     margin-top: 1rem;
@@ -134,25 +118,11 @@
   form button:hover {
     background-color: #dcd2b5;
   }
-  #previewContainer {
-    margin-top: 1rem;
-    max-width: 100%;
-  }
-  #previewContainer img,
-  #previewContainer video {
-    max-width: 100%;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(74, 111, 165, 0.3);
-  }
-  #previewContainer video {
-    max-height: 300px;
-  }
   footer {
     margin: 2rem 0;
     font-size: 0.9rem;
     color: #777;
   }
-  /* Модальне вікно */
   #editModal {
     display: none;
     position: fixed;
@@ -215,20 +185,15 @@
 <header>Історії, що змінюють життя</header>
 <div class="quote" id="quote"></div>
 
-<!-- Форма з прев’ю -->
 <form id="storyForm" novalidate>
   <h2>Поділись своєю історією</h2>
   <textarea id="storyText" placeholder="Ваша історія..." required></textarea>
   <input type="text" id="authorName" placeholder="Ваше ім'я (або залиште порожнім для анонімності)" />
-  <input type="file" id="photoInput" accept="image/*,video/*" />
-  <div id="previewContainer"></div>
   <button type="submit">Надіслати</button>
 </form>
 
-<!-- Історії під формою -->
 <div class="stories" id="stories"></div>
 
-<!-- Модальне вікно редагування -->
 <div id="editModal">
   <div class="modal-content">
     <button class="close-btn" id="closeEdit">&times;</button>
@@ -239,20 +204,17 @@
   </div>
 </div>
 
-<footer>© 2025 OmegaRBshop</footer>
+<footer>© 2025 By Mihail</footer>
 
 <script>
-  const BIN_ID = "682f58308a456b7966a3c868"; // заміни на свій bin ID з JSONBin.io
-  const API_KEY = "$2a$10$oang7VCHNNBPmX4Yzw/Gj.zHNv3VQG9Fcsf2MioqnbWo4JtfKcw32"; // твій API ключ JSONBin.io
+  const BIN_ID = "682f58308a456b7966a3c868";
+  const API_KEY = "$2a$10$oang7VCHNNBPmX4Yzw/Gj.zHNv3VQG9Fcsf2MioqnbWo4JtfKcw32";
   const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-  
-  const storiesContainer = document.getElementById('stories');
+
   const storyForm = document.getElementById('storyForm');
   const storyText = document.getElementById('storyText');
   const authorName = document.getElementById('authorName');
-  const photoInput = document.getElementById('photoInput');
-  const previewContainer = document.getElementById('previewContainer');
-
+  const storiesContainer = document.getElementById('stories');
   const editModal = document.getElementById('editModal');
   const closeEditBtn = document.getElementById('closeEdit');
   const editText = document.getElementById('editText');
@@ -262,7 +224,6 @@
   let stories = [];
   let editingIndex = null;
 
-  // Вивід цитати
   const quotes = [
     "“Велика перемога починається з маленької історії.”",
     "“Кожна історія — це крок до зміни світу.”",
@@ -272,29 +233,23 @@
   ];
   document.getElementById('quote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
 
-  // Функція завантаження даних з JSONBin
   async function loadStories() {
     try {
       const res = await fetch(API_URL + '/latest', {
-        headers: {
-          'X-Master-Key': API_KEY
-        }
+        headers: {'X-Master-Key': API_KEY}
       });
-      if (!res.ok) throw new Error('Помилка завантаження історій');
       const data = await res.json();
       stories = data.record || [];
       renderStories();
-    } catch (e) {
-      console.error(e);
+    } catch {
       stories = [];
       renderStories();
     }
   }
 
-  // Функція збереження даних до JSONBin
   async function saveStories() {
     try {
-      const res = await fetch(API_URL, {
+      await fetch(API_URL, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -303,14 +258,17 @@
         },
         body: JSON.stringify(stories)
       });
-      if (!res.ok) throw new Error('Помилка збереження історій');
-    } catch (e) {
-      console.error(e);
-      alert('Помилка збереження історії. Спробуйте пізніше.');
+    } catch {
+      alert('Помилка збереження історії.');
     }
   }
 
-  // Відмалювання списку історій
+  function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, m => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+    }[m]));
+  }
+
   function renderStories() {
     storiesContainer.innerHTML = '';
     if (stories.length === 0) {
@@ -320,166 +278,61 @@
     stories.forEach((story, i) => {
       const div = document.createElement('div');
       div.className = 'story';
-      div.style.animationDelay = (0.1 + i*0.2) + 's';
-
-      let mediaHtml = '';
-      if (story.photoDataUrl) {
-        if (story.photoType.startsWith('video')) {
-          mediaHtml = `<video controls src="${story.photoDataUrl}"></video>`;
-        } else {
-          mediaHtml = `<img src="${story.photoDataUrl}" alt="Фото до історії">`;
-        }
-      }
-
+      div.style.animationDelay = (0.1 + i * 0.2) + 's';
       div.innerHTML = `
         <div class="author">${story.author || 'Анонім'}</div>
         <div class="text">${escapeHtml(story.text).replace(/\n/g, '<br>')}</div>
-        ${mediaHtml}
         <div class="actions">
-          <button class="editBtn" data-index="${i}">Редагувати</button>
-          <button class="deleteBtn" data-index="${i}">Видалити</button>
+          <button class="editBtn" data-id="${i}">Редагувати</button>
+          <button class="deleteBtn" data-id="${i}">Видалити</button>
         </div>
       `;
       storiesContainer.appendChild(div);
     });
-    addActionListeners();
+    document.querySelectorAll('.editBtn').forEach(btn => btn.onclick = openEdit);
+    document.querySelectorAll('.deleteBtn').forEach(btn => btn.onclick = deleteStory);
   }
 
-  // Додавання обробників на кнопки редагування та видалення
-  function addActionListeners() {
-    document.querySelectorAll('.editBtn').forEach(btn => {
-      btn.onclick = e => {
-        editingIndex = +e.target.dataset.index;
-        openEditModal();
-      };
-    });
-    document.querySelectorAll('.deleteBtn').forEach(btn => {
-      btn.onclick = e => {
-        const index = +e.target.dataset.index;
-        if (confirm('Ви впевнені, що хочете видалити цю історію?')) {
-          stories.splice(index, 1);
-          saveStories();
-          renderStories();
-        }
-      };
-    });
-  }
-
-  // Відкриття модального вікна редагування
-  function openEditModal() {
-    if (editingIndex === null || !stories[editingIndex]) return;
-    editText.value = stories[editingIndex].text;
-    editAuthor.value = stories[editingIndex].author || '';
+  function openEdit(e) {
+    editingIndex = parseInt(e.target.dataset.id);
+    const story = stories[editingIndex];
+    editText.value = story.text;
+    editAuthor.value = story.author || '';
     editModal.style.display = 'flex';
   }
 
-  // Закриття модального вікна
-  closeEditBtn.onclick = () => {
-    editModal.style.display = 'none';
-    editingIndex = null;
-  };
-  window.onclick = e => {
-    if (e.target === editModal) {
-      editModal.style.display = 'none';
-      editingIndex = null;
+  function deleteStory(e) {
+    const i = parseInt(e.target.dataset.id);
+    if (confirm('Ви точно хочете видалити цю історію?')) {
+      stories.splice(i, 1);
+      saveStories().then(renderStories);
     }
-  };
+  }
 
-  // Збереження редагування
-  saveEditBtn.onclick = () => {
-    const newText = editText.value.trim();
-    const newAuthor = editAuthor.value.trim() || 'Анонім';
-    if (!newText) {
-      alert('Текст історії не може бути порожнім!');
-      return;
-    }
-    stories[editingIndex].text = newText;
-    stories[editingIndex].author = newAuthor;
-    saveStories();
-    renderStories();
-    editModal.style.display = 'none';
-    editingIndex = null;
-  };
-
-  // Екранне прев’ю файлу (фото/відео)
-  photoInput.onchange = () => {
-    const file = photoInput.files[0];
-    if (!file) {
-      previewContainer.innerHTML = '';
-      return;
-    }
-    const fileType = file.type;
-    if (!fileType.startsWith('image/') && !fileType.startsWith('video/')) {
-      alert('Підтримуються лише зображення або відео.');
-      photoInput.value = '';
-      previewContainer.innerHTML = '';
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = e => {
-      if (fileType.startsWith('image/')) {
-        previewContainer.innerHTML = `<img src="${e.target.result}" alt="Прев’ю фото">`;
-      } else {
-        previewContainer.innerHTML = `<video controls src="${e.target.result}"></video>`;
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  // Відправлення форми
   storyForm.onsubmit = async e => {
     e.preventDefault();
-    const text = storyText.value.trim();
-    const author = authorName.value.trim() || 'Анонім';
-
-    if (!text) {
-      alert('Будь ласка, введіть текст історії.');
-      return;
-    }
-
-    let photoDataUrl = null;
-    let photoType = null;
-    if (photoInput.files.length > 0) {
-      const file = photoInput.files[0];
-      photoType = file.type;
-      photoDataUrl = await readFileAsDataURL(file);
-    }
-
+    if (!storyText.value.trim()) return alert('Введіть текст історії!');
     stories.unshift({
-      text,
-      author,
-      photoDataUrl,
-      photoType,
-      createdAt: new Date().toISOString()
+      text: storyText.value.trim(),
+      author: authorName.value.trim()
     });
-    if (stories.length > 20) stories.pop(); // обмеження кількості історій
-
     await saveStories();
     renderStories();
     storyForm.reset();
-    previewContainer.innerHTML = '';
   };
 
-  // Читання файлу у base64
-  function readFileAsDataURL(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result);
-      reader.onerror = e => reject(e);
-      reader.readAsDataURL(file);
-    });
-  }
+  closeEditBtn.onclick = () => editModal.style.display = 'none';
 
-  // Екранізація спецсимволів HTML для безпеки
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
+  saveEditBtn.onclick = async () => {
+    if (!editText.value.trim()) return alert('Введіть текст історії!');
+    stories[editingIndex].text = editText.value.trim();
+    stories[editingIndex].author = editAuthor.value.trim();
+    await saveStories();
+    renderStories();
+    editModal.style.display = 'none';
+  };
 
-  // Завантажити історії при старті
   loadStories();
-
 </script>
 
 </body>
